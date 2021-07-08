@@ -59,19 +59,13 @@ export async function loadSprite(
     const clipInfo = hasSpriteAnim3D ?
         await getSpritesAnim3DSClipInfo() :
         (index < 100 ? await getSpritesRawClipInfo() : await getSpritesClipInfo());
-    let box = clipInfo[index];
-
-    if (!box) {
-        // TODO LBA1 set default sprite box
-        box = {xMin: 0, xMax: 0, yMin: 0, yMax: 0, zMin: 0, zMax: 0};
-    }
-
-    const {xMin, xMax, yMin, yMax, zMin, zMax} = box;
+    const box = clipInfo[index];
+    const { xMin, xMax, yMin, yMax, zMin, zMax } = box;
 
     let threeObject;
     let update = (_time) => {};
     const { sprites: replacements } = await getModelReplacements();
-    if (replacements && index in replacements) {
+    if (is3DCam && replacements && index in replacements) {
         if (replacements[index].hide) {
             threeObject = new THREE.Object3D();
         } else {

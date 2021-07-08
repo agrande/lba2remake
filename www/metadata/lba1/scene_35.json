@@ -1,8 +1,15 @@
 {
   "actorNames": [
+    null,
+    "Box_1",
+    "Box_2",
+    "Box_3",
+    "Box_4"
   ],
   "zoneNames": [
+    null,
+    null,
+    "CrossMark_2"
   ],
-  "varcubes": [
-  ]
+  "varcubes": []
 }

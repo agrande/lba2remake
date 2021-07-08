@@ -21,7 +21,7 @@ export function processPhysicsFrame(game: Game, scene: Scene, time: Time) {
 }
 
 function processActorPhysics(game: Game, scene: Scene, actor: Actor, time: Time) {
-    if (!actor.model || actor.state.isDead)
+    if (actor.state.isDead)
         return;
 
     // If someone is talking who isn't this actor, don't process the physics.
@@ -52,9 +52,9 @@ function processActorPhysics(game: Game, scene: Scene, actor: Actor, time: Time)
     if (actor.state.isCarriedBy === -1) {
         actor.threeObject.quaternion.copy(actor.physics.orientation);
         actor.threeObject.position.copy(actor.physics.position);
-        if (actor.model.boundingBoxDebugMesh) {
-            actor.model.boundingBoxDebugMesh.quaternion.copy(actor.threeObject.quaternion);
-            actor.model.boundingBoxDebugMesh.quaternion.invert();
+        if (actor.model?.boundingBoxDebugMesh) {
+            actor.model?.boundingBoxDebugMesh.quaternion.copy(actor.threeObject.quaternion);
+            actor.model?.boundingBoxDebugMesh.quaternion.invert();
         }
     }
 }
@@ -156,27 +156,33 @@ const H_THRESHOLD = 0.007 * WORLD_SIZE;
 function processCollisionsWithActors(scene: Scene, actor: Actor) {
     actor.state.hasCollidedWithActor = -1;
     actor.state.isCarriedBy = -1;
-    if (actor.model === null || actor.state.isDead ||
-        !actor.props.flags.hasCollisions) {
+    if (actor.state.isDead ||
+        !actor.props.flags.hasCollisions ||
+        actor.props.flags.isSprite
+    ) {
         return;
     }
-    ACTOR_BOX.copy(actor.model.boundingBox);
+    const box = actor.getBoundingBox();
+    if (!box) {
+        return;
+    }
+    ACTOR_BOX.copy(box);
 
     ACTOR_BOX.translate(actor.physics.position);
     DIFF.set(0, YSTEP, 0);
     ACTOR_BOX.translate(DIFF);
     for (const otherActor of scene.actors) {
-        if ((otherActor.model === null && otherActor.sprite === null)
-            || otherActor.index === actor.index
+        if (otherActor.index === actor.index
             || otherActor.state.isDead
             || !otherActor.state.isVisible
-            || !(otherActor.props.flags.hasCollisions || otherActor.props.flags.isSprite)) {
+            || !otherActor.props.flags.hasCollisions) {
             continue;
         }
 
-        const boundingBox = otherActor.model
-            ? otherActor.model.boundingBox
-            : otherActor.sprite.boundingBox;
+        const boundingBox = otherActor.getBoundingBox();
+        if (!boundingBox) {
+            continue;
+        }
         INTERSECTION.copy(boundingBox);
         if (otherActor.model) {
             INTERSECTION.translate(otherActor.physics.position);
@@ -208,6 +214,11 @@ function processCollisionsWithActors(scene: Scene, actor: Actor) {
             if (!actor.props.flags.canCarryActor) {
                 actor.physics.position.add(DIFF);
                 ACTOR_BOX.translate(DIFF);
+            }
+            if (otherActor.props.flags.canBePushed) {
+                otherActor.physics.position.sub(DIFF);
+                otherActor.threeObject.position.sub(DIFF);
+                ACTOR2_BOX.translate(DIFF);
             }
             if (actor.state.isCarriedBy !== otherActor.index
                 && otherActor.state.isCarriedBy !== actor.index) {

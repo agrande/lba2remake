@@ -10,11 +10,14 @@ import {mapComportementArg} from '../../scripts/text/listing';
 import {makeObjectsNode} from '../node_factories/objects';
 import { getEntities, loadEntities } from '../../../model/browser/entitities';
 import Actor from '../../../../../../game/Actor';
+import { getParams } from '../../../../../../params';
+
+const isLBA1 = getParams().game === 'lba1';
 
 const ActorNode = {
     dynamic: true,
     needsData: true,
-    allowRenaming: actor => actor.index > 1,
+    allowRenaming: actor => actor.index > (isLBA1 ? 0 : 1),
     rename: (actor, newName) => {
         renameObject('actor', actor.props.sceneIndex, actor.index, newName);
     },

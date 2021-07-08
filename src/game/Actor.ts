@@ -36,6 +36,7 @@ interface ActorFlags {
     canFall: boolean;
     canCarryActor: boolean;
     noShadow: boolean;
+    canBePushed: boolean;
 }
 
 export interface ActorProps {
@@ -779,8 +780,7 @@ export default class Actor {
     }
 
     getBoundingBox() {
-        return this.model ?
-        this.model.boundingBox : this.sprite.boundingBox;
+        return this.model ? this.model?.boundingBox : this.sprite?.boundingBox;
     }
 
     private static createState(): ActorState {
@@ -897,7 +897,8 @@ export function createNewActorProps(
             canCarryActor: false,
             isVisible: true,
             isSprite: false,
-            noShadow: false
+            noShadow: false,
+            canBePushed: false,
         },
         dirMode: ActorDirMode.NO_MOVE,
         angle: 0,

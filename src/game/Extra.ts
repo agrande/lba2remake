@@ -541,6 +541,10 @@ export default class Extra {
         this.collect(game, scene);
         scene.removeExtra(this);
     }
+
+    getBoundingBox() {
+        return this.model.boundingBox;
+    }
 }
 
 export function getBonus(type): SpriteType {
